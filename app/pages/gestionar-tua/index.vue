@@ -31,5 +31,6 @@ const cards = [
   { title: "Aprobados", description: "Trámites que han sido aprobados.", icon: "lucide:badge-check", to: "/gestionar-tua/aprobados" },
   { title: "Historial", description: "Historial completo de trámites.", icon: "lucide:history", to: "/gestionar-tua/historial" },
   { title: "Limpiar Roles", description: "Limpiar y procesar roles de turno.", icon: "lucide:sparkles", to: "/gestionar-tua/limpiar-roles-turno" },
+  { title: "Generar Data", description: "Generar datos TUA desde archivo Excel.", icon: "lucide:database", to: "/gestionar-tua/generar-data" },
 ];
 </script>

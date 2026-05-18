@@ -136,6 +136,7 @@ const topNav: NavItem[] = [
     icon: "lucide:clipboard-check",
     items: [
       { title: "Limpiar Roles de turno", link: "/gestionar-tua/limpiar-roles-turno", icon: "lucide:sparkles" },
+      { title: "Generar Data", link: "/gestionar-tua/generar-data", icon: "lucide:database" },
     ],
   },
 ];
