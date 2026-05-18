@@ -173,7 +173,7 @@ async function uploadFile() {
 
 const fadeIn: MotionProps["variants"] = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
+  visible: { opacity: 1, transition: { duration: 0.8 } },
 };
 
 const slideUp: MotionProps["variants"] = {
