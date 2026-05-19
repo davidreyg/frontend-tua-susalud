@@ -1,4 +1,4 @@
-import type { GenerarDataResponse } from '~/utils/api-types'
+import type { GenerarDataResponse, TuaInputDataResponse } from '~/utils/api-types'
 
 import { api } from './http-client'
 
@@ -11,6 +11,16 @@ export const tuaService = {
     form.append('hoja', sheet)
 
     return api.post<GenerarDataResponse>(`${PATH}/generar-data`, form)
+  },
+
+  async escribirDataTua(datos: TuaInputDataResponse[]): Promise<Blob> {
+    return api.post<Blob>(`${PATH}/escribir-data-tua`, datos, { responseType: 'blob' })
+  },
+
+  async listarHojas(file: File): Promise<{ hojas: string[]; total: number }> {
+    const form = new FormData()
+    form.append('archivo', file)
+    return api.post<{ hojas: string[]; total: number }>(`${PATH}/listar-hojas`, form)
   },
 
   async cleanRolesTurno(file: File): Promise<Blob> {
