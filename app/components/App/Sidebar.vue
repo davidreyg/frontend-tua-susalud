@@ -5,6 +5,14 @@ const route = useRoute()
 const search = ref('')
 const isMobileOpen = ref(false)
 
+const colorMode = useColorMode()
+const isDarkMode = computed({
+  get: () => colorMode.value === 'dark',
+  set: (val) => {
+    colorMode.preference = val ? 'dark' : 'light'
+  },
+})
+
 const isDesktop = useMediaQuery('(min-width: 1024px)')
 
 const user = {
@@ -177,24 +185,16 @@ watch(isDesktop, (desktop) => {
             </nav>
           </div>
 
-          <div class="bg-muted/50 mt-auto rounded-lg p-4 text-sm">
-            <div class="flex items-center justify-between">
-              <p class="font-semibold">Used space</p>
-              <UiButton class="size-6" size="icon-sm" variant="ghost">
-                <Icon name="lucide:x" class="text-muted-foreground size-4" />
-              </UiButton>
+          <div class="mt-auto mb-6 flex items-center justify-between rounded-lg px-1">
+            <div class="flex items-center gap-3">
+              <Icon
+                :key="`icon-${colorMode.value}`"
+                :name="colorMode.value === 'dark' ? 'lucide:sun' : 'lucide:moon'"
+                class="text-muted-foreground theme-icon size-4"
+              />
+              <span class="text-sm">Tema oscuro</span>
             </div>
-            <p class="text-muted-foreground mt-3">
-              Your team has used 80% of your available space. Need more?
-            </p>
-            <UiProgress class="my-4 h-2" :model-value="80" />
-
-            <div class="flex items-center gap-1">
-              <UiButton class="px-2" variant="ghost" size="sm">Dismiss</UiButton>
-              <UiButton class="px-2 text-sky-500 hover:text-sky-600" variant="ghost" size="sm"
-                >Upgrade plan</UiButton
-              >
-            </div>
+            <UiSwitch v-model="isDarkMode" aria-label="Alternar tema oscuro" />
           </div>
 
           <UiDivider class="my-6" />
@@ -239,6 +239,23 @@ watch(isDesktop, (desktop) => {
 </template>
 
 <style scoped>
+.theme-icon {
+  animation: theme-spin 0.5s ease;
+}
+
+@keyframes theme-spin {
+  from {
+    rotate: -90deg;
+    scale: 0.5;
+    opacity: 0.3;
+  }
+  to {
+    rotate: 0deg;
+    scale: 1;
+    opacity: 1;
+  }
+}
+
 .nav-btn:deep(.router-link-exact-active),
 .sub-btn:deep(.router-link-active) {
   background-color: color-mix(in oklch, var(--accent) 80%, transparent);
