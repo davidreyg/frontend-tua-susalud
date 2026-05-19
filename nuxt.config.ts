@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxt/fonts',
     '@vee-validate/nuxt',
+    '@morev/vue-transitions/nuxt',
   ],
   ssr: false,
   eslint: {
@@ -31,7 +32,11 @@ export default defineNuxtConfig({
     ],
   },
   devtools: { enabled: true },
-
+  app: {
+    // Deshabilita el sistema de transiciones nativo de Nuxt
+    pageTransition: false,
+    layoutTransition: false,
+  },
   css: ['~/assets/css/tailwind.css'],
 
   colorMode: {
