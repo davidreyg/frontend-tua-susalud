@@ -15,24 +15,37 @@ const currentFile = computed(() => files.value[0])
 
 const loading = ref(false)
 const resultUrl = ref<string>()
+const downloadName = ref('')
 const errorMsg = ref<string>()
+
+// Libera la URL anterior antes de asignar una nueva
+function setResultUrl(archivo: Blob, nombre: string) {
+  if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
+  resultUrl.value = URL.createObjectURL(archivo)
+  downloadName.value = nombre
+}
 
 async function uploadFile() {
   if (!currentFile.value || !(currentFile.value.file instanceof File)) return
 
   loading.value = true
   errorMsg.value = undefined
-  resultUrl.value = undefined
 
   try {
-    const blob = await tuaService.cleanRolesTurno(currentFile.value.file)
-    resultUrl.value = URL.createObjectURL(blob)
+    const archivo = await tuaService.cleanRolesTurno(currentFile.value.file)
+    const nombre = currentFile.value.file.name.replace(/\.(xlsx|xls)$/i, '_limpio.$1')
+    setResultUrl(archivo, nombre)
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el archivo'
   } finally {
     loading.value = false
   }
 }
+
+// Revoca al desmontar
+onUnmounted(() => {
+  if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
+})
 
 const fadeIn: MotionProps['variants'] = {
   hidden: { opacity: 0 },
@@ -197,7 +210,7 @@ const slideUp: MotionProps['variants'] = {
             <UiButton
               as="a"
               :href="resultUrl"
-              download
+              :download="downloadName"
               variant="default"
               size="sm"
               class="shrink-0"
