@@ -68,37 +68,36 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
   const inputRef = shallowRef<HTMLInputElement | null>(null)
   const dropzoneRef = shallowRef<HTMLElement | null>(null)
 
-  watch(inputRef, (newInput) => {
+  watch(inputRef, (newInput, oldInput) => {
+    if (oldInput) {
+      oldInput.removeEventListener('change', handleFileChange)
+    }
     if (!newInput) return
-    configureInput()
+    newInput.type = 'file'
+    newInput.className = 'sr-only'
+    newInput.accept = accept
+    newInput.multiple = multiple
+    newInput.hidden = true
+    newInput.name = 'file-upload-input'
+    newInput.id = 'file-input-' + Math.random().toString(36).substring(2, 9)
+    newInput.addEventListener('change', handleFileChange)
   })
 
-  const configureInput = () => {
-    if (!inputRef.value) return
-    inputRef.value.type = 'file'
-    inputRef.value.className = 'sr-only'
-    inputRef.value.accept = accept
-    inputRef.value.multiple = multiple
-    inputRef.value.hidden = true
-    inputRef.value.name = 'file-upload-input'
-    inputRef.value.id = 'file-input-' + Math.random().toString(36).substring(2, 9)
-    inputRef.value.addEventListener('change', handleFileChange)
-  }
-
-  watch(dropzoneRef, (newDropzone) => {
+  watch(dropzoneRef, (newDropzone, oldDropzone) => {
+    if (oldDropzone) {
+      oldDropzone.removeEventListener('dragenter', handleDragEnter)
+      oldDropzone.removeEventListener('dragleave', handleDragLeave)
+      oldDropzone.removeEventListener('dragover', handleDragOver)
+      oldDropzone.removeEventListener('drop', handleDrop)
+    }
     if (!newDropzone) return
-    configureDropzone()
+    newDropzone.addEventListener('dragenter', handleDragEnter)
+    newDropzone.addEventListener('dragleave', handleDragLeave)
+    newDropzone.addEventListener('dragover', handleDragOver)
+    newDropzone.addEventListener('drop', handleDrop)
+
+    newDropzone.setAttribute('aria-label', ariaLabel.value)
   })
-
-  const configureDropzone = () => {
-    if (!dropzoneRef.value) return
-    dropzoneRef.value.addEventListener('dragenter', handleDragEnter)
-    dropzoneRef.value.addEventListener('dragleave', handleDragLeave)
-    dropzoneRef.value.addEventListener('dragover', handleDragOver)
-    dropzoneRef.value.addEventListener('drop', handleDrop)
-
-    dropzoneRef.value.setAttribute('aria-label', ariaLabel.value)
-  }
 
   watch(ariaLabel, (newValue) => {
     if (!dropzoneRef.value) return
@@ -156,7 +155,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
 
   const clearFiles = () => {
     files.value.forEach((file) => {
-      if (file.preview && file.file instanceof File && file.file.type.startsWith('image/')) {
+      if (file.preview && file.file instanceof File) {
         URL.revokeObjectURL(file.preview)
       }
     })
@@ -243,12 +242,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
     if (!id) return
 
     const fileToRemove = files.value.find((file) => file.id === id)
-    if (
-      fileToRemove &&
-      fileToRemove.preview &&
-      fileToRemove.file instanceof File &&
-      fileToRemove.file.type.startsWith('image/')
-    ) {
+    if (fileToRemove && fileToRemove.preview && fileToRemove.file instanceof File) {
       URL.revokeObjectURL(fileToRemove.preview)
     }
 
@@ -340,13 +334,24 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
     { deep: true }
   )
 
-  // Cleanup object URLs on unmount to prevent memory leaks
+  // Cleanup on unmount to prevent memory leaks
   onBeforeUnmount(() => {
     files.value.forEach((file) => {
-      if (file.preview && file.file instanceof File && file.file.type.startsWith('image/')) {
+      if (file.preview && file.file instanceof File) {
         URL.revokeObjectURL(file.preview)
       }
     })
+
+    if (inputRef.value) {
+      inputRef.value.removeEventListener('change', handleFileChange)
+    }
+
+    if (dropzoneRef.value) {
+      dropzoneRef.value.removeEventListener('dragenter', handleDragEnter)
+      dropzoneRef.value.removeEventListener('dragleave', handleDragLeave)
+      dropzoneRef.value.removeEventListener('dragover', handleDragOver)
+      dropzoneRef.value.removeEventListener('drop', handleDrop)
+    }
   })
 
   return {
