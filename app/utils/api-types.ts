@@ -4,6 +4,14 @@ export interface TurnoItem {
   hora_salida: string | null
 }
 
+export interface GenerarDataResponse {
+  datos: TuaInputDataResponse[]
+  total_registros: number
+  empleados_encontrados: number
+  empleados_no_encontrados: number
+  nombres_no_encontrados: string[]
+}
+
 export interface TuaInputDataResponse {
   codigo_unico: string
   nombre_establecimiento: string

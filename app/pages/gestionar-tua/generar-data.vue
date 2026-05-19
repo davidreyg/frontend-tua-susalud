@@ -25,7 +25,9 @@ async function generarData() {
   records.value = []
 
   try {
-    records.value = await tuaService.generateData(currentFile.value.file, sheet.value.trim())
+    records.value = (
+      await tuaService.generateData(currentFile.value.file, sheet.value.trim())
+    ).datos
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el archivo'
   } finally {
