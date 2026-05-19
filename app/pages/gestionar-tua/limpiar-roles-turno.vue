@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { MotionProps } from 'motion-v'
 import { AnimatePresence } from 'motion-v'
+import { tuaService } from '~/services/tua.service'
 
 const maxSize = 10 * 1024 * 1024
 
@@ -24,19 +25,10 @@ async function uploadFile() {
   resultUrl.value = undefined
 
   try {
-    const form = new FormData()
-    form.append('file', currentFile.value.file)
-
-    const res = await $fetch('/api/limpiar-roles-turno', {
-      method: 'POST',
-      body: form,
-      responseType: 'blob',
-    })
-
-    resultUrl.value = URL.createObjectURL(res as Blob)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    errorMsg.value = e?.data?.message || e?.message || 'Error al procesar el archivo'
+    const blob = await tuaService.cleanRolesTurno(currentFile.value.file)
+    resultUrl.value = URL.createObjectURL(blob)
+  } catch (e) {
+    errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el archivo'
   } finally {
     loading.value = false
   }

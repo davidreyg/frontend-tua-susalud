@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TuaInputDataResponse } from '~/utils/api-types'
+import { tuaService } from '~/services/tua.service'
 
 const maxSize = 10 * 1024 * 1024
 
@@ -24,20 +25,9 @@ async function generarData() {
   records.value = []
 
   try {
-    const form = new FormData()
-    form.append('archivo', currentFile.value.file)
-    form.append('hoja', sheet.value.trim())
-
-    const res = await $fetch<TuaInputDataResponse[]>('/api/generar-data', {
-      method: 'POST',
-      body: form,
-    })
-
-    records.value = res
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    errorMsg.value =
-      e?.data?.detail || e?.data?.message || e?.message || 'Error al procesar el archivo'
+    records.value = await tuaService.generateData(currentFile.value.file, sheet.value.trim())
+  } catch (e) {
+    errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el archivo'
   } finally {
     loading.value = false
   }
