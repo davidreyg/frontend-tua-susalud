@@ -18,3 +18,17 @@ export interface TuaInputDataResponse {
   servicio: string
   turnos: TurnoItem[]
 }
+
+export interface ApiErrorResponse {
+  data: unknown
+  status: string
+  message: string
+  error_code: string
+  description: string
+}
+
+export interface UploadResult {
+  filename: string
+  size: number
+  url?: string
+}
