@@ -17,12 +17,11 @@ const emit = defineEmits<{
 
 const maxSize = 10 * 1024 * 1024
 
-const { files, errors, openFileDialog, removeFile, inputRef, dropzoneRef } =
-  useFileUpload({
-    maxSize,
-    accept: '.xlsx',
-    multiple: false,
-  })
+const { files, errors, openFileDialog, removeFile, inputRef, dropzoneRef } = useFileUpload({
+  maxSize,
+  accept: '.xlsx',
+  multiple: false,
+})
 
 const currentFile = computed(() => files.value[0])
 
