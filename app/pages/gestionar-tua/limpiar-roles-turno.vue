@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import type { MotionProps } from 'motion-v'
-import { AnimatePresence } from 'motion-v'
+import { AnimatePresence, LayoutGroup } from 'motion-v'
 import { tuaService } from '~/services/tua.service'
 
 const maxSize = 10 * 1024 * 1024
 
-const { files, errors, openFileDialog, clearFiles, inputRef, dropzoneRef } = useFileUpload({
-  maxSize,
-  accept: '.xlsx,.xls',
-  multiple: false,
-})
+const { files, errors, openFileDialog, removeFile, clearFiles, inputRef, dropzoneRef } =
+  useFileUpload({
+    maxSize,
+    accept: '.xlsx,.xls',
+    multiple: false,
+  })
 
 const currentFile = computed(() => files.value[0])
 
@@ -48,6 +49,7 @@ watch(currentFile, (file, prev) => {
   if (file && file !== prev) {
     revokeResultUrl()
     errorMsg.value = undefined
+    downloadName.value = ''
     uploadFile()
   }
 })
@@ -61,15 +63,45 @@ function resetAll() {
 
 onUnmounted(revokeResultUrl)
 
-const fadeIn: MotionProps['variants'] = {
+const sequenceContainer: MotionProps['variants'] = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.8 } },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.4, when: 'beforeChildren' },
+  },
 }
 
-const slideUp: MotionProps['variants'] = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 18 } },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
+const dropAreaContainer: MotionProps['variants'] = {
+  hidden: { opacity: 0, y: 10, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { staggerChildren: 0.1, when: 'beforeChildren' },
+  },
+}
+
+const dropAreaItem: MotionProps['variants'] = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 100 },
+  },
+}
+
+const listItem: MotionProps['variants'] = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 80, damping: 15 },
+  },
+  exit: {
+    opacity: 0,
+    y: 10,
+    transition: { duration: 0.2, ease: 'easeInOut' },
+  },
 }
 </script>
 
@@ -81,7 +113,6 @@ const slideUp: MotionProps['variants'] = {
       description="Sube un archivo Excel con los roles de turno y se procesará automáticamente."
     />
 
-    <!-- Upload section -->
     <div class="bg-card rounded-xl border">
       <div class="p-6 pb-4">
         <div class="flex items-center gap-2.5">
@@ -96,68 +127,127 @@ const slideUp: MotionProps['variants'] = {
       </div>
       <UiDivider class="px-6" />
       <div class="p-6 pt-5">
-        <Motion :variants="fadeIn" initial="hidden" animate="visible" as-child>
-          <div
-            ref="dropzoneRef"
-            role="button"
-            class="border-input hover:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 flex min-h-44 flex-col items-center justify-center rounded-lg border border-dashed p-6 transition-colors has-disabled:pointer-events-none has-disabled:opacity-50 has-[input:focus]:ring-[3px]"
-            @click="openFileDialog"
+        <LayoutGroup>
+          <Motion
+            :variants="sequenceContainer"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            layout="position"
+            class="mx-auto flex max-w-md flex-col gap-2"
           >
-            <input ref="inputRef" hidden aria-label="Upload file" />
-
-            <div class="flex flex-col items-center gap-3 text-center">
+            <!-- Drop area -->
+            <Motion as-child :variants="dropAreaContainer">
               <div
-                class="bg-background flex size-12 items-center justify-center rounded-full border"
-                aria-hidden="true"
+                ref="dropzoneRef"
+                role="button"
+                class="border-input hover:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed p-4 transition-colors has-disabled:pointer-events-none has-disabled:opacity-50 has-[input:focus]:ring-[3px]"
+                @click="openFileDialog"
               >
-                <Icon
-                  v-if="loading"
-                  name="lucide:loader-circle"
-                  class="text-muted-foreground size-5 animate-spin"
-                />
-                <Icon
-                  v-else-if="resultUrl"
-                  name="lucide:check-circle-2"
-                  class="size-5 text-emerald-500"
-                />
-                <Icon v-else name="lucide:upload" class="text-muted-foreground size-5" />
-              </div>
-              <div>
-                <p class="text-sm font-medium">
-                  {{
-                    loading
-                      ? 'Procesando…'
-                      : currentFile
-                        ? currentFile.file.name
-                        : 'Arrastra o haz clic para seleccionar'
-                  }}
-                </p>
-                <p v-if="!currentFile" class="text-muted-foreground mt-0.5 text-xs">
-                  Tamaño máximo: {{ formatBytes(maxSize) }}
-                </p>
-                <p v-else-if="resultUrl" class="mt-0.5 text-xs text-emerald-600">
-                  Listo para descargar
-                </p>
-                <p v-else-if="errorMsg" class="text-destructive mt-0.5 text-xs">
-                  {{ errorMsg }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Motion>
+                <input ref="inputRef" hidden aria-label="Upload file" />
 
-        <Motion
-          v-if="errors.length > 0"
-          key="errors"
-          :variants="slideUp"
-          initial="hidden"
-          animate="visible"
-          class="text-destructive mt-3 flex items-center gap-1.5 text-xs"
-          role="alert"
-        >
-          <Icon name="lucide:circle-alert" class="size-3.5 shrink-0" />
-          <span>{{ errors[0] }}</span>
-        </Motion>
+                <div class="flex flex-col items-center justify-center text-center">
+                  <Motion
+                    :variants="dropAreaItem"
+                    class="bg-background mb-2 flex size-11 shrink-0 items-center justify-center rounded-full border"
+                    aria-hidden="true"
+                  >
+                    <Icon
+                      v-if="loading"
+                      name="lucide:loader-circle"
+                      class="size-4 opacity-60 animate-spin"
+                    />
+                    <Icon v-else name="lucide:upload" class="size-4 opacity-60" />
+                  </Motion>
+                  <Motion as="p" :variants="dropAreaItem" class="mb-1 text-sm font-medium">
+                    {{ loading ? 'Procesando…' : 'Subir archivo' }}
+                  </Motion>
+                  <Motion as="p" :variants="dropAreaItem" class="text-muted-foreground text-xs">
+                    Arrastra o haz clic (máx. {{ formatBytes(maxSize) }})
+                  </Motion>
+                  <AnimatePresence>
+                    <Motion
+                      v-if="currentFile && !loading"
+                      key="message"
+                      layout="position"
+                      :variants="dropAreaItem"
+                      as="p"
+                      class="mt-1 text-center text-xs text-sky-500"
+                    >
+                      Elimina el archivo actual para subir otro.
+                    </Motion>
+                  </AnimatePresence>
+                </div>
+              </div>
+            </Motion>
+
+            <!-- Validation errors -->
+            <Motion
+              v-if="errors.length > 0"
+              key="errors"
+              layout="position"
+              :variants="listItem"
+              initial="hidden"
+              animate="visible"
+              class="text-destructive flex items-center gap-1 text-xs"
+              role="alert"
+            >
+              <Icon name="lucide:circle-alert" class="size-3 shrink-0" />
+              <span>{{ errors[0] }}</span>
+            </Motion>
+
+            <!-- Upload error message -->
+            <Motion
+              v-if="errorMsg"
+              key="upload-error"
+              layout="position"
+              :variants="listItem"
+              initial="hidden"
+              animate="visible"
+              class="text-destructive flex items-center gap-1 text-xs"
+              role="alert"
+            >
+              <Icon name="lucide:circle-alert" class="size-3 shrink-0" />
+              <span>{{ errorMsg }}</span>
+            </Motion>
+
+            <!-- File list -->
+            <Motion
+              v-if="currentFile"
+              key="file-list"
+              layout="position"
+              :variants="listItem"
+              initial="hidden"
+              animate="visible"
+              class="space-y-2"
+            >
+              <div class="flex items-center justify-between gap-2 rounded-lg border px-4 py-2">
+                <div class="flex items-center gap-3 overflow-hidden">
+                  <Icon
+                    name="lucide:file-spreadsheet"
+                    class="size-4 shrink-0 opacity-60"
+                    aria-hidden="true"
+                  />
+                  <div class="min-w-0">
+                    <p class="truncate text-[13px] font-medium">
+                      {{ currentFile.file.name }}
+                    </p>
+                  </div>
+                </div>
+
+                <UiButton
+                  size="icon"
+                  variant="ghost"
+                  class="text-muted-foreground/80 hover:text-foreground -me-2 size-8 hover:bg-transparent"
+                  aria-label="Remove file"
+                  @click="removeFile(currentFile.id)"
+                >
+                  <Icon name="lucide:x" class="size-4" aria-hidden="true" />
+                </UiButton>
+              </div>
+            </Motion>
+          </Motion>
+        </LayoutGroup>
       </div>
     </div>
 
@@ -166,7 +256,7 @@ const slideUp: MotionProps['variants'] = {
       <Motion
         v-if="resultUrl"
         key="result-section"
-        :variants="slideUp"
+        :variants="listItem"
         initial="hidden"
         animate="visible"
         exit="exit"
