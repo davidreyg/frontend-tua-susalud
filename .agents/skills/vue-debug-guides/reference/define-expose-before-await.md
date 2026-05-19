@@ -20,6 +20,7 @@ The compiler transforms top-level await, and code after await runs in a differen
 - [ ] Test parent ref access when using async setup
 
 **Incorrect:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
@@ -40,7 +41,7 @@ data.value = await response.json()
 defineExpose({
   count,
   increment,
-  data
+  data,
 })
 </script>
 
@@ -52,7 +53,8 @@ defineExpose({
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
 import ChildComponent from './ChildComponent.vue'
 
 const childRef = ref(null)
@@ -72,6 +74,7 @@ onMounted(() => {
 ```
 
 **Correct:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
@@ -88,7 +91,7 @@ function increment() {
 defineExpose({
   count,
   increment,
-  data
+  data,
 })
 
 // Now safe to use await
@@ -104,7 +107,7 @@ data.value = await response.json()
 ```vue
 <!-- Alternative: Separate async logic from expose -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const data = ref(null)
 const loading = ref(true)
@@ -125,7 +128,7 @@ defineExpose({
   data,
   getData,
   refreshData,
-  loading
+  loading,
 })
 
 // Trigger async load in lifecycle hook instead
@@ -152,15 +155,12 @@ const posts = ref([])
 defineExpose({
   user,
   posts,
-  refresh: () => loadData()
+  refresh: () => loadData(),
 })
 
 // Now safe to await
 async function loadData() {
-  const [userRes, postsRes] = await Promise.all([
-    fetch('/api/user'),
-    fetch('/api/posts')
-  ])
+  const [userRes, postsRes] = await Promise.all([fetch('/api/user'), fetch('/api/posts')])
   user.value = await userRes.json()
   posts.value = await postsRes.json()
 }
@@ -188,5 +188,6 @@ async setup() {
 ```
 
 ## Reference
+
 - [Vue.js Script Setup - defineExpose](https://vuejs.org/api/sfc-script-setup.html#defineexpose)
 - [Vue.js Async Components](https://vuejs.org/guide/components/async.html)

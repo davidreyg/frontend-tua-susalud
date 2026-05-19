@@ -20,6 +20,7 @@ This commonly surprises developers trying to use imported constants or computed 
 - [ ] For dynamic validation, use watchers instead of prop validators
 
 **Incorrect:**
+
 ```vue
 <script setup>
 import { ref } from 'vue'
@@ -32,18 +33,19 @@ defineProps({
   size: {
     type: String,
     // WRONG: VALID_SIZES is not accessible here
-    validator: (v) => VALID_SIZES.includes(v)  // ReferenceError!
+    validator: (v) => VALID_SIZES.includes(v), // ReferenceError!
   },
   name: {
     type: String,
     // WRONG: Cannot access refs
-    validator: (v) => v.length <= maxLength.value  // ReferenceError!
-  }
+    validator: (v) => v.length <= maxLength.value, // ReferenceError!
+  },
 })
 </script>
 ```
 
 **Correct:**
+
 ```vue
 <script>
 // Define constants in regular <script> block (module scope)
@@ -56,12 +58,12 @@ export const MAX_LENGTH = 100
 defineProps({
   size: {
     type: String,
-    validator: (v) => VALID_SIZES.includes(v)  // Works!
+    validator: (v) => VALID_SIZES.includes(v), // Works!
   },
   name: {
     type: String,
-    validator: (v) => v.length <= MAX_LENGTH  // Works!
-  }
+    validator: (v) => v.length <= MAX_LENGTH, // Works!
+  },
 })
 </script>
 ```
@@ -77,18 +79,18 @@ export const sizeValidator = (v) => VALID_SIZES.includes(v)
 
 ```vue
 <script setup>
-import { VALID_SIZES, VALID_COLORS, sizeValidator } from './validation'
+import { sizeValidator, VALID_COLORS, VALID_SIZES } from './validation'
 
 // Imported values ARE accessible
 defineProps({
   size: {
     type: String,
-    validator: sizeValidator
+    validator: sizeValidator,
   },
   color: {
     type: String,
-    validator: (v) => VALID_COLORS.includes(v)
-  }
+    validator: (v) => VALID_COLORS.includes(v),
+  },
 })
 </script>
 ```
@@ -102,8 +104,8 @@ const options = {
   themes: ['light', 'dark', 'system'],
   defaults: {
     theme: 'light',
-    size: 'md'
-  }
+    size: 'md',
+  },
 }
 </script>
 
@@ -113,8 +115,8 @@ const props = defineProps({
   theme: {
     type: String,
     default: options.defaults.theme,
-    validator: (v) => options.themes.includes(v)
-  }
+    validator: (v) => options.themes.includes(v),
+  },
 })
 </script>
 ```
@@ -150,12 +152,13 @@ defineProps({ prop: { default: MY_CONST } })
 
 // Compiled (simplified):
 export default {
-  props: { prop: { default: MY_CONST } },  // MY_CONST doesn't exist here!
+  props: { prop: { default: MY_CONST } }, // MY_CONST doesn't exist here!
   setup() {
-    const MY_CONST = 'value'  // Defined too late
-  }
+    const MY_CONST = 'value' // Defined too late
+  },
 }
 ```
 
 ## Reference
+
 - [Vue.js Script Setup - defineProps](https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits)

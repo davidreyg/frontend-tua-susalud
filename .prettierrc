@@ -3,12 +3,14 @@
   "endOfLine": "lf",
   "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "printWidth": 100,
-  "semi": true,
-  "singleQuote": false,
+  "semi": false,
+  "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "es5",
   "useTabs": false,
-  "vueIndentScriptAndStyle": true,
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "vueIndentScriptAndStyle": false,
   "tailwindFunctions": ["tv", "tw"],
   "importOrder": ["<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "<TYPES>", "", "^[.]"]
 }

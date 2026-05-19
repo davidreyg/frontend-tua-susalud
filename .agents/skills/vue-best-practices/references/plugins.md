@@ -21,19 +21,22 @@ tags: [vue3, plugins, provide-inject, typescript, dependency-injection]
 ## Structure Plugins for `app.use()`
 
 A Vue plugin must be either:
+
 - An object with `install(app, options?)`
 - A function with the same signature
 
 **BAD:**
+
 ```ts
 const notAPlugin = {
-  doSomething() {}
+  doSomething() {},
 }
 
 app.use(notAPlugin)
 ```
 
 **GOOD:**
+
 ```ts
 import type { App } from 'vue'
 
@@ -51,13 +54,14 @@ const myPlugin = {
     }
 
     app.provide('myPlugin', { prefix })
-  }
+  },
 }
 
 app.use(myPlugin, { prefix: 'custom', debug: true })
 ```
 
 **GOOD:**
+
 ```ts
 import type { App } from 'vue'
 
@@ -71,27 +75,30 @@ app.use(simplePlugin, { message: 'Welcome!' })
 ## Register Capabilities Explicitly in `install()`
 
 Inside `install()`, wire behavior through Vue application APIs:
+
 - `app.component()` for global components
 - `app.directive()` for global directives
 - `app.provide()` for injectable services and config
 - `app.config.globalProperties` for optional global helpers (sparingly)
 
 **BAD:**
+
 ```ts
 const uselessPlugin = {
   install(app, options) {
     const service = createService(options)
-  }
+  },
 }
 ```
 
 **GOOD:**
+
 ```ts
 const usefulPlugin = {
   install(app, options) {
     const service = createService(options)
     app.provide(serviceKey, service)
-  }
+  },
 }
 ```
 
@@ -109,7 +116,7 @@ interface MyOptions {
 const myPlugin: Plugin<[MyOptions]> = {
   install(app: App, options: MyOptions) {
     app.provide(apiKeyKey, options.apiKey)
-  }
+  },
 }
 ```
 
@@ -118,19 +125,21 @@ const myPlugin: Plugin<[MyOptions]> = {
 String keys can collide (`'http'`, `'config'`, `'i18n'`). Use symbol keys with `InjectionKey<T>` so injections are unique and typed.
 
 **BAD:**
+
 ```ts
 export default {
   install(app) {
     app.provide('http', axios)
     app.provide('config', appConfig)
-  }
+  },
 }
 ```
 
 **GOOD:**
+
 ```ts
-import type { InjectionKey } from 'vue'
 import type { AxiosInstance } from 'axios'
+import type { InjectionKey } from 'vue'
 
 interface AppConfig {
   apiUrl: string
@@ -144,7 +153,7 @@ export default {
   install(app) {
     app.provide(httpKey, axios)
     app.provide(configKey, { apiUrl: '/api', timeout: 5000 })
-  }
+  },
 }
 ```
 
@@ -153,8 +162,9 @@ export default {
 Wrap required injections in composables that throw clear setup errors.
 
 ```ts
+import { authKey } from '@/injection-keys'
 import { inject } from 'vue'
-import { authKey, type AuthService } from '@/injection-keys'
+import type { AuthService } from '@/injection-keys'
 
 export function useAuth(): AuthService {
   const auth = inject(authKey)

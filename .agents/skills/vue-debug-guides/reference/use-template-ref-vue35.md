@@ -20,9 +20,10 @@ The legacy pattern causes no errors or warnings when names don't match - the ref
 - [ ] TypeScript automatically infers the element type
 
 **Incorrect (Legacy Pattern):**
+
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 // FRAGILE: Variable name MUST match template ref value exactly
 const input = ref(null)
@@ -57,9 +58,10 @@ const inupt = ref(null)
 ```
 
 **Correct (Vue 3.5+):**
+
 ```vue
 <script setup>
-import { useTemplateRef, onMounted } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 
 // CORRECT: Explicit binding - argument matches template ref
 const inputElement = useTemplateRef('my-input')
@@ -107,14 +109,14 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 // CORRECT: Legacy pattern required for v-for refs
 const itemRefs = ref([])
 
 onMounted(() => {
   // itemRefs.value is an array of DOM elements
-  itemRefs.value.forEach(el => {
+  itemRefs.value.forEach((el) => {
     console.log(el.textContent)
   })
 })
@@ -137,6 +139,7 @@ onMounted(() => {
 <!-- BEFORE (Vue < 3.5) -->
 <script setup>
 import { ref } from 'vue'
+
 const myElement = ref(null) // Name must match template
 </script>
 <template>
@@ -146,6 +149,7 @@ const myElement = ref(null) // Name must match template
 <!-- AFTER (Vue 3.5+) -->
 <script setup>
 import { useTemplateRef } from 'vue'
+
 const element = useTemplateRef('my-element') // Any variable name
 </script>
 <template>
@@ -154,5 +158,6 @@ const element = useTemplateRef('my-element') // Any variable name
 ```
 
 ## Reference
+
 - [Vue.js Template Refs - Composition API](https://vuejs.org/guide/essentials/template-refs.html#accessing-the-refs)
 - [Vue 3.5 Release Notes](https://blog.vuejs.org/posts/vue-3-5)

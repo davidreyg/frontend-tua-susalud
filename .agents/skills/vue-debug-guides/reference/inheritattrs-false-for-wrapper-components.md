@@ -51,7 +51,7 @@ defineProps(['label'])
 defineProps(['label'])
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 
@@ -87,7 +87,7 @@ defineOptions({
 ```vue
 <script setup>
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 ```
@@ -97,7 +97,7 @@ defineOptions({
 ```vue
 <script>
 export default {
-  inheritAttrs: false
+  inheritAttrs: false,
 }
 </script>
 
@@ -123,15 +123,15 @@ export default {
 
 ```vue
 <script setup>
-import { useAttrs, computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 
 defineProps({
   label: String,
-  error: String
+  error: String,
 })
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 
 const attrs = useAttrs()
@@ -160,12 +160,12 @@ defineProps({
   icon: String,
   iconPosition: {
     type: String,
-    default: 'left'
-  }
+    default: 'left',
+  },
 })
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 
@@ -184,22 +184,16 @@ defineOptions({
 <script setup>
 defineProps({
   to: String,
-  external: Boolean
+  external: Boolean,
 })
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 
 <template>
-  <a
-    v-if="external"
-    :href="to"
-    target="_blank"
-    rel="noopener noreferrer"
-    v-bind="$attrs"
-  >
+  <a v-if="external" :href="to" target="_blank" rel="noopener noreferrer" v-bind="$attrs">
     <slot />
   </a>
   <router-link v-else :to="to" v-bind="$attrs">

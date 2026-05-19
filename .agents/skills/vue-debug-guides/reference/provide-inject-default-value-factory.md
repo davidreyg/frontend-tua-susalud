@@ -20,6 +20,7 @@ tags: [vue3, provide-inject, composition-api, memory, shared-state]
 ## The Gotcha: Shared Default References
 
 **Wrong - Object literal creates shared reference:**
+
 ```vue
 <script setup>
 import { inject } from 'vue'
@@ -35,6 +36,7 @@ config.debug = true
 ```
 
 **Correct - Factory function creates unique instance:**
+
 ```vue
 <script setup>
 import { inject } from 'vue'
@@ -81,17 +83,25 @@ const enabled = inject('enabled', false)
 import { inject } from 'vue'
 
 // Objects MUST use factory
-const user = inject('user', () => ({
-  id: null,
-  name: 'Anonymous',
-  preferences: {}
-}), true)
+const user = inject(
+  'user',
+  () => ({
+    id: null,
+    name: 'Anonymous',
+    preferences: {},
+  }),
+  true
+)
 
-const settings = inject('settings', () => ({
-  theme: 'light',
-  language: 'en',
-  notifications: true
-}), true)
+const settings = inject(
+  'settings',
+  () => ({
+    theme: 'light',
+    language: 'en',
+    notifications: true,
+  }),
+  true
+)
 </script>
 ```
 
@@ -111,8 +121,8 @@ const permissions = inject('permissions', () => ['read'], true)
 
 ```vue
 <script setup>
-import { inject } from 'vue'
 import { Logger } from '@/utils/logger'
+import { inject } from 'vue'
 
 // Class instances MUST use factory
 const logger = inject('logger', () => new Logger({ level: 'warn' }), true)
@@ -129,21 +139,21 @@ export default {
     // Primitive - can use literal
     theme: {
       from: 'theme',
-      default: 'light'
+      default: 'light',
     },
 
     // Object - MUST use factory
     config: {
       from: 'config',
-      default: () => ({ debug: false })
+      default: () => ({ debug: false }),
     },
 
     // Array - MUST use factory
     permissions: {
       from: 'permissions',
-      default: () => []
-    }
-  }
+      default: () => [],
+    },
+  },
 }
 ```
 
@@ -158,7 +168,7 @@ const formContext = reactive({
   values: {},
   errors: {},
   touched: {},
-  isSubmitting: false
+  isSubmitting: false,
 })
 
 provide('formContext', formContext)
@@ -169,14 +179,18 @@ provide('formContext', formContext)
 import { inject } from 'vue'
 
 // Safe default that won't be shared
-const formContext = inject('formContext', () => ({
-  values: {},
-  errors: {},
-  touched: {},
-  isSubmitting: false,
-  // Mark as standalone mode
-  isStandalone: true
-}), true)
+const formContext = inject(
+  'formContext',
+  () => ({
+    values: {},
+    errors: {},
+    touched: {},
+    isSubmitting: false,
+    // Mark as standalone mode
+    isStandalone: true,
+  }),
+  true
+)
 
 // Component works both inside and outside FormProvider
 </script>
@@ -197,11 +211,15 @@ interface Config {
 const ConfigKey: InjectionKey<Config> = Symbol('config')
 
 // TypeScript understands the factory return type
-const config = inject(ConfigKey, () => ({
-  apiUrl: 'https://api.example.com',
-  debug: false,
-  features: []
-}), true)
+const config = inject(
+  ConfigKey,
+  () => ({
+    apiUrl: 'https://api.example.com',
+    debug: false,
+    features: [],
+  }),
+  true
+)
 ```
 
 ## Common Mistake in Testing
@@ -211,6 +229,7 @@ This gotcha often appears in tests where components are rendered without provide
 ```ts
 // test.spec.ts
 import { mount } from '@vue/test-utils'
+
 import MyComponent from './MyComponent.vue'
 
 // Without provider, all test instances share the wrong default
@@ -232,13 +251,14 @@ it('test with provider', () => {
   const wrapper = mount(MyComponent, {
     global: {
       provide: {
-        config: { debug: false, apiUrl: '' }
-      }
-    }
+        config: { debug: false, apiUrl: '' },
+      },
+    },
   })
 })
 ```
 
 ## Reference
+
 - [Vue.js inject() API Reference](https://vuejs.org/api/composition-api-dependency-injection.html#inject)
 - [Vue.js Provide/Inject Guide](https://vuejs.org/guide/components/provide-inject.html)

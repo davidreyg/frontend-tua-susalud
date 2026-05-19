@@ -18,6 +18,7 @@ tags: [vue3, sfc, export, script-block, composition-api]
 - [ ] If you need to export types, use a separate `<script>` block alongside `<script setup>`
 
 **Problematic Code:**
+
 ```vue
 <!-- MyComponent.vue -->
 <script>
@@ -25,12 +26,12 @@ tags: [vue3, sfc, export, script-block, composition-api]
 export const MyComponent = {
   data() {
     return { count: 0 }
-  }
+  },
 }
 
 // BAD: Exporting multiple things from component script
 export const CONSTANT = 42
-export function helper() { }
+export function helper() {}
 </script>
 
 <template>
@@ -39,6 +40,7 @@ export function helper() { }
 ```
 
 **Correct Code:**
+
 ```vue
 <!-- MyComponent.vue - Options API -->
 <script>
@@ -46,7 +48,7 @@ export function helper() { }
 export default {
   data() {
     return { count: 0 }
-  }
+  },
 }
 </script>
 
@@ -140,6 +142,7 @@ Vue's SFC compiler and build tools expect:
 ```javascript
 // How Vue tooling processes SFCs internally
 import MyComponent from './MyComponent.vue'
+
 // ^ Always expects the default export to be the component
 ```
 
@@ -180,5 +183,6 @@ const { state, increment } = useSharedLogic()
 ```
 
 ## Reference
+
 - [Vue.js SFC Specification](https://vuejs.org/api/sfc-spec.html)
 - [Vue.js Composition API - Composables](https://vuejs.org/guide/reusability/composables.html)

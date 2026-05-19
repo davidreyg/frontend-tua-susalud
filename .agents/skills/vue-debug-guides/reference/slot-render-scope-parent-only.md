@@ -20,6 +20,7 @@ When you provide content for a slot, that content is defined in your parent temp
 - [ ] Check that all template expressions reference data available in the current component
 
 **Incorrect:**
+
 ```vue
 <!-- Parent.vue -->
 <script setup>
@@ -43,8 +44,8 @@ import SubmitButton from './SubmitButton.vue'
 <script setup>
 import { ref } from 'vue'
 
-const buttonText = ref('Click me')  // Not accessible in parent's slot content
-const isLoading = ref(false)        // Not accessible in parent's slot content
+const buttonText = ref('Click me') // Not accessible in parent's slot content
+const isLoading = ref(false) // Not accessible in parent's slot content
 </script>
 
 <template>
@@ -55,6 +56,7 @@ const isLoading = ref(false)        // Not accessible in parent's slot content
 ```
 
 **Correct - Use Scoped Slots:**
+
 ```vue
 <!-- SubmitButton.vue (Child) - Expose data via slot props -->
 <script setup>
@@ -88,10 +90,12 @@ import SubmitButton from './SubmitButton.vue'
 ```
 
 **Correct - Use Parent Data:**
+
 ```vue
 <!-- Parent.vue -->
 <script setup>
 import { ref } from 'vue'
+
 import SubmitButton from './SubmitButton.vue'
 
 // Define data in parent where slot content is compiled
@@ -124,7 +128,7 @@ function Parent() {
 }
 
 function Child(slotCallback) {
-  const childData = 'World'  // Not visible to callback
+  const childData = 'World' // Not visible to callback
 
   // Must explicitly pass data via slot props
   return slotCallback({ text: childData })
@@ -132,4 +136,5 @@ function Child(slotCallback) {
 ```
 
 ## Reference
+
 - [Vue.js Slots - Render Scope](https://vuejs.org/guide/components/slots.html#render-scope)

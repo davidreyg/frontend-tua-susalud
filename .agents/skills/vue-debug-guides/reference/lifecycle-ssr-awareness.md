@@ -21,6 +21,7 @@ On the server, only `beforeCreate`, `created`, and their Composition API equival
 - [ ] Check for browser environment before using browser APIs
 
 **Incorrect:**
+
 ```javascript
 // WRONG: Accessing browser APIs in created - breaks SSR
 export default {
@@ -28,7 +29,7 @@ export default {
     // These don't exist on the server!
     this.width = window.innerWidth // ReferenceError: window is not defined
     this.savedData = localStorage.getItem('data') // ReferenceError: localStorage is not defined
-  }
+  },
 }
 ```
 
@@ -42,18 +43,19 @@ export default {
     // This won't run on server - page renders without user data
     // Then hydrates with user data - causes flash of content
     this.user = await fetchCurrentUser()
-  }
+  },
 }
 ```
 
 **Correct:**
+
 ```javascript
 // CORRECT: Data fetching in created (runs on server), DOM in mounted
 export default {
   data() {
     return {
       user: null,
-      windowWidth: 0
+      windowWidth: 0,
     }
   },
   async created() {
@@ -67,14 +69,14 @@ export default {
   },
   unmounted() {
     window.removeEventListener('resize', this.handleResize)
-  }
+  },
 }
 ```
 
 ```vue
 <!-- CORRECT: Composition API with SSR awareness -->
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 const user = ref(null)
 const windowWidth = ref(0)
@@ -115,7 +117,7 @@ export default {
   mounted() {
     // mounted only runs in browser, so this is always safe
     this.applyTheme()
-  }
+  },
 }
 ```
 
@@ -151,7 +153,7 @@ export default {
       // Only runs on server
       this.logServerRequest()
     }
-  }
+  },
 }
 ```
 
@@ -159,7 +161,7 @@ export default {
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 // Start with a value that matches what server renders
 const currentTime = ref(null)
@@ -179,6 +181,7 @@ onMounted(() => {
 ```
 
 ## Reference
+
 - [Vue.js SSR Guide](https://vuejs.org/guide/scaling-up/ssr.html)
 - [Nuxt.js Lifecycle](https://nuxt.com/docs/api/composables/use-nuxt-app#lifecycle-hooks)
 - [Vue SSR Hydration](https://vuejs.org/guide/scaling-up/ssr.html#client-hydration)

@@ -1,2 +1,2 @@
-export const COMPANY_NAME = "Hospital Huaycán";
-export const COMPANY_SHORT = "TUA";
+export const COMPANY_NAME = 'Hospital Huaycán'
+export const COMPANY_SHORT = 'TUA'

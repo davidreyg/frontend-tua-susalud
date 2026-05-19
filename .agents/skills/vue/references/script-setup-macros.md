@@ -13,6 +13,7 @@ description: Vue 3 script setup syntax and compiler macros for defining props, e
 <script setup lang="ts">
 // Top-level bindings are exposed to template
 import { ref } from 'vue'
+
 import MyComponent from './MyComponent.vue'
 
 const count = ref(0)
@@ -44,12 +45,15 @@ const { title, count = 0 } = defineProps<{
 }>()
 
 // With defaults (Vue 3.4 and below)
-const props = withDefaults(defineProps<{
-  title: string
-  items?: string[]
-}>(), {
-  items: () => []  // Use factory for arrays/objects
-})
+const props = withDefaults(
+  defineProps<{
+    title: string
+    items?: string[]
+  }>(),
+  {
+    items: () => [], // Use factory for arrays/objects
+  }
+)
 ```
 
 ## defineEmits
@@ -76,7 +80,7 @@ Two-way binding prop consumed via `v-model`. Available in Vue 3.4+.
 ```ts
 // Basic usage - creates "modelValue" prop
 const model = defineModel<string>()
-model.value = 'hello'  // Emits "update:modelValue"
+model.value = 'hello' // Emits "update:modelValue"
 
 // Named model - consumed via v-model:name
 const count = defineModel<number>('count', { default: 0 })
@@ -89,12 +93,17 @@ if (modifiers.trim) {
 
 // With transformers
 const [value, modifiers] = defineModel({
-  get(val) { return val?.toLowerCase() },
-  set(val) { return modifiers.trim ? val?.trim() : val }
+  get(val) {
+    return val?.toLowerCase()
+  },
+  set(val) {
+    return modifiers.trim ? val?.trim() : val
+  },
 })
 ```
 
 Parent usage:
+
 ```vue
 <Child v-model="name" />
 <Child v-model:count="total" />
@@ -109,15 +118,18 @@ Explicitly expose properties to parent via template refs. Components are closed 
 import { ref } from 'vue'
 
 const count = ref(0)
-const reset = () => { count.value = 0 }
+const reset = () => {
+  count.value = 0
+}
 
 defineExpose({
   count,
-  reset
+  reset,
 })
 ```
 
 Parent access:
+
 ```ts
 const childRef = ref<{ count: number; reset: () => void }>()
 childRef.value?.reset()
@@ -130,7 +142,7 @@ Declare component options without a separate `<script>` block. Available in Vue 
 ```ts
 defineOptions({
   inheritAttrs: false,
-  name: 'CustomName'
+  name: 'CustomName',
 })
 ```
 
@@ -159,9 +171,11 @@ defineProps<{
 ```
 
 Multiple generics with constraints:
+
 ```vue
 <script setup lang="ts" generic="T, U extends Record<string, T>">
 import type { Item } from './types'
+
 defineProps<{
   data: U
   key: keyof U
@@ -174,12 +188,12 @@ defineProps<{
 Use `vNameOfDirective` naming convention.
 
 ```ts
-const vFocus = {
-  mounted: (el: HTMLElement) => el.focus()
-}
-
 // Or import and rename
 import { myDirective as vMyDirective } from './directives'
+
+const vFocus = {
+  mounted: (el: HTMLElement) => el.focus(),
+}
 ```
 
 ```vue
@@ -194,7 +208,7 @@ Use `await` directly in `<script setup>`. The component becomes async and must b
 
 ```vue
 <script setup lang="ts">
-const data = await fetch('/api/data').then(r => r.json())
+const data = await fetch('/api/data').then((r) => r.json())
 </script>
 ```
 

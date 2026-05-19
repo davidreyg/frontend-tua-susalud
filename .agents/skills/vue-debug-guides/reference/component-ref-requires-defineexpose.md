@@ -21,6 +21,7 @@ This catches many developers off-guard when migrating from Options API, where `t
 - [ ] Call defineExpose before any await operation (see async caveat)
 
 **Incorrect:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
@@ -48,7 +49,8 @@ function reset() {
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
 import ChildComponent from './ChildComponent.vue'
 
 const childRef = ref(null)
@@ -66,6 +68,7 @@ onMounted(() => {
 ```
 
 **Correct:**
+
 ```vue
 <!-- ChildComponent.vue -->
 <script setup>
@@ -84,9 +87,9 @@ function reset() {
 
 // CORRECT: Explicitly expose public API
 defineExpose({
-  count,      // Expose the ref
-  increment,  // Expose methods
-  reset
+  count, // Expose the ref
+  increment, // Expose methods
+  reset,
   // internalState NOT exposed - stays private
 })
 </script>
@@ -99,7 +102,8 @@ defineExpose({
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+
 import ChildComponent from './ChildComponent.vue'
 
 const childRef = ref(null)
@@ -131,7 +135,7 @@ defineExpose({
   focus: () => inputEl.value?.focus(),
   blur: () => inputEl.value?.blur(),
   // Or expose the element directly
-  el: inputEl
+  el: inputEl,
 })
 </script>
 
@@ -147,13 +151,17 @@ export default {
   data() {
     return {
       count: 0,
-      internalState: 'private'
+      internalState: 'private',
     }
   },
   methods: {
-    increment() { this.count++ },
-    reset() { this.count = 0 }
-  }
+    increment() {
+      this.count++
+    },
+    reset() {
+      this.count = 0
+    },
+  },
 }
 ```
 
@@ -172,5 +180,6 @@ const emit = defineEmits(['update:modelValue'])
 ```
 
 ## Reference
+
 - [Vue.js Component Refs](https://vuejs.org/guide/essentials/template-refs.html#ref-on-component)
 - [Script Setup - defineExpose](https://vuejs.org/api/sfc-script-setup.html#defineexpose)

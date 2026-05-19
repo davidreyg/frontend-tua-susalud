@@ -18,6 +18,7 @@ tags: [vue3, component-registration, local-registration, scope, nested-component
 - [ ] Use IDE auto-import features to simplify repeated imports
 
 **Incorrect:**
+
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
@@ -40,13 +41,12 @@ import ChildComponent from './ChildComponent.vue'
 
 <template>
   <!-- ERROR: Card is not available here! -->
-  <Card>
-    Child content
-  </Card>
+  <Card> Child content </Card>
 </template>
 ```
 
 **Correct:**
+
 ```vue
 <!-- ParentComponent.vue -->
 <script setup>
@@ -68,22 +68,21 @@ import Card from './Card.vue'
 </script>
 
 <template>
-  <Card>
-    Child content
-  </Card>
+  <Card> Child content </Card>
 </template>
 ```
 
 ## Common Scenarios
 
 ### Scenario 1: Deeply Nested Components
+
 ```vue
 <!-- GrandchildComponent.vue -->
 <script setup>
 // Even if parent and grandparent both use Card,
 // grandchild must import it separately
-import Card from '@/components/Card.vue'
 import Button from '@/components/Button.vue'
+import Card from '@/components/Card.vue'
 </script>
 
 <template>
@@ -94,17 +93,19 @@ import Button from '@/components/Button.vue'
 ```
 
 ### Scenario 2: Slot Content with Components
+
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import Modal from './Modal.vue'
 import Form from './Form.vue'
+import Modal from './Modal.vue'
 </script>
 
 <template>
   <!-- Form is registered in Parent, so it works in slot content -->
   <Modal>
-    <Form /> <!-- This works because slot content is compiled in Parent's scope -->
+    <Form />
+    <!-- This works because slot content is compiled in Parent's scope -->
   </Modal>
 </template>
 ```
@@ -118,18 +119,21 @@ import Form from './Form.vue'
 
 <template>
   <div class="modal">
-    <slot /> <!-- Form component works here because it's parent's slot content -->
+    <slot />
+    <!-- Form component works here because it's parent's slot content -->
   </div>
 </template>
 ```
 
 ### Scenario 3: Dynamic Components
+
 ```vue
 <!-- Container.vue -->
 <script setup>
+import { ref, shallowRef } from 'vue'
+
 import TabA from './TabA.vue'
 import TabB from './TabB.vue'
-import { ref, shallowRef } from 'vue'
 
 // When using dynamic components, all possible components must be imported
 const currentTab = shallowRef(TabA)
@@ -143,9 +147,11 @@ const currentTab = shallowRef(TabA)
 ## Why This Design?
 
 Local registration provides:
+
 1. **Explicit dependencies** - You can see exactly what each component uses
 2. **Tree-shaking** - Unused components are removed from bundles
 3. **Clear scope** - No magic or implicit behavior
 
 ## Reference
+
 - [Vue.js Component Registration - Local Registration](https://vuejs.org/guide/components/registration.html#local-registration)

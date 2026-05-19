@@ -35,7 +35,7 @@ export default {
     this.$logger.info('Mounted')
     const data = await this.$http.get(this.$config.apiUrl)
     this.$api.process(this.$utils.transform(data))
-  }
+  },
 }
 ```
 

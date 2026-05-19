@@ -20,6 +20,7 @@ When you need to watch a specific property of a reactive object, always wrap it 
 - [ ] For entire reactive objects, you can watch directly (creates implicit deep watcher)
 
 **Incorrect:**
+
 ```javascript
 import { reactive, watch } from 'vue'
 
@@ -38,6 +39,7 @@ watch(state.name, (newName) => {
 ```
 
 **Correct:**
+
 ```javascript
 import { reactive, watch } from 'vue'
 
@@ -76,18 +78,15 @@ import { reactive, watch } from 'vue'
 const state = reactive({ firstName: 'John', lastName: 'Doe' })
 
 // Watch multiple properties with array of getters
-watch(
-  [() => state.firstName, () => state.lastName],
-  ([newFirst, newLast], [oldFirst, oldLast]) => {
-    console.log(`Name changed from ${oldFirst} ${oldLast} to ${newFirst} ${newLast}`)
-  }
-)
+watch([() => state.firstName, () => state.lastName], ([newFirst, newLast], [oldFirst, oldLast]) => {
+  console.log(`Name changed from ${oldFirst} ${oldLast} to ${newFirst} ${newLast}`)
+})
 ```
 
 ## When Direct Watching Works
 
 ```javascript
-import { ref, reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 const count = ref(0)
 const state = reactive({ nested: { value: 1 } })
@@ -105,4 +104,5 @@ watch(state, (newState) => {
 ```
 
 ## Reference
+
 - [Vue.js Watchers - Watch Source Types](https://vuejs.org/guide/essentials/watchers.html#watch-source-types)

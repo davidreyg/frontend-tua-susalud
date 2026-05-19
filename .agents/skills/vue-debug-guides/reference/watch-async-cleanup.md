@@ -21,6 +21,7 @@ Always use `onWatcherCleanup` or the `onCleanup` callback parameter to cancel pe
 - [ ] Consider debouncing rapid changes before fetching
 
 **Incorrect:**
+
 ```javascript
 import { ref, watch } from 'vue'
 
@@ -31,7 +32,7 @@ const results = ref([])
 watch(searchQuery, async (query) => {
   if (query) {
     const response = await fetch(`/api/search?q=${query}`)
-    results.value = await response.json()  // May overwrite newer results!
+    results.value = await response.json() // May overwrite newer results!
   }
 })
 
@@ -45,8 +46,9 @@ watch(searchQuery, (query) => {
 ```
 
 **Correct:**
+
 ```javascript
-import { ref, watch, onWatcherCleanup } from 'vue'
+import { onWatcherCleanup, ref, watch } from 'vue'
 
 const searchQuery = ref('')
 const results = ref([])
@@ -69,7 +71,7 @@ watch(searchQuery, async (query) => {
   loading.value = true
   try {
     const response = await fetch(`/api/search?q=${query}`, {
-      signal: controller.signal
+      signal: controller.signal,
     })
     results.value = await response.json()
   } catch (err) {
@@ -95,11 +97,11 @@ watch(userId, (newId, oldId, onCleanup) => {
   const controller = new AbortController()
 
   fetch(`/api/users/${newId}`, { signal: controller.signal })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       userData.value = data
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.name !== 'AbortError') {
         console.error(err)
       }
@@ -114,7 +116,7 @@ watch(userId, (newId, oldId, onCleanup) => {
 ## Cleanup with Timeouts
 
 ```javascript
-import { ref, watch, onWatcherCleanup } from 'vue'
+import { onWatcherCleanup, ref, watch } from 'vue'
 
 const input = ref('')
 
@@ -158,7 +160,7 @@ watch(id, async (newId, oldId, onCleanup) => {
 ## watchEffect Cleanup
 
 ```javascript
-import { ref, watchEffect, onWatcherCleanup } from 'vue'
+import { onWatcherCleanup, ref, watchEffect } from 'vue'
 
 const resourceId = ref('abc')
 
@@ -176,5 +178,6 @@ watchEffect(async () => {
 ```
 
 ## Reference
+
 - [Vue.js Watchers - Callback Flush Timing](https://vuejs.org/guide/essentials/watchers.html#callback-flush-timing)
 - [Vue.js Watchers - Side Effect Cleanup](https://vuejs.org/api/reactivity-core.html#watcheffect)

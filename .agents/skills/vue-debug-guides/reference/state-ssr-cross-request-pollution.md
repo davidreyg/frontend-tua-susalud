@@ -30,7 +30,7 @@ import { reactive } from 'vue'
 export const store = reactive({
   user: null,
   cart: [],
-  preferences: {}
+  preferences: {},
 })
 ```
 
@@ -56,13 +56,13 @@ import { defineStore } from 'pinia'
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
-    preferences: {}
+    preferences: {},
   }),
   actions: {
     setUser(user) {
       this.user = user
-    }
-  }
+    },
+  },
 })
 ```
 
@@ -70,6 +70,7 @@ export const useUserStore = defineStore('user', {
 // main.js (or entry-server.js)
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+
 import App from './App.vue'
 
 // For SSR: Create fresh instances per request
@@ -85,8 +86,9 @@ export function createAppInstance() {
 
 ```javascript
 // entry-server.js
-import { createAppInstance } from './main'
 import { renderToString } from 'vue/server-renderer'
+
+import { createAppInstance } from './main'
 
 export async function render(url, context) {
   // Fresh app and store instance per request
@@ -130,7 +132,7 @@ export function createStore() {
   const state = reactive({
     user: null,
     cart: [],
-    preferences: {}
+    preferences: {},
   })
 
   return {
@@ -140,15 +142,16 @@ export function createStore() {
     },
     addToCart(item) {
       state.cart.push(item)
-    }
+    },
   }
 }
 ```
 
 ```javascript
 // entry-server.js
-import { createStore } from './store'
 import { provide } from 'vue'
+
+import { createStore } from './store'
 
 export async function render(url) {
   const app = createApp(App)
@@ -204,7 +207,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
 ```javascript
 // test/ssr-state-isolation.test.js
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { render } from './entry-server'
 
 describe('SSR State Isolation', () => {
@@ -212,7 +216,7 @@ describe('SSR State Isolation', () => {
     // Simulate concurrent requests
     const [result1, result2] = await Promise.all([
       render('/user/1', { userId: '1' }),
-      render('/user/2', { userId: '2' })
+      render('/user/2', { userId: '2' }),
     ])
 
     // Each should have their own user data
@@ -259,7 +263,7 @@ export const appState = reactive({})
 export const cache = new Map()
 
 // BAD: Even plain objects can be problematic
-let requestCount = 0  // Shared across requests
+let requestCount = 0 // Shared across requests
 ```
 
 ## Why Pinia is Recommended for SSR
@@ -271,6 +275,7 @@ let requestCount = 0  // Shared across requests
 5. **Tested patterns** - Battle-tested SSR handling
 
 ## Reference
+
 - [Vue.js State Management - SSR Considerations](https://vuejs.org/guide/scaling-up/state-management.html#ssr-considerations)
 - [Pinia SSR Guide](https://pinia.vuejs.org/ssr/)
 - [Vue SSR Guide](https://vuejs.org/guide/scaling-up/ssr.html)

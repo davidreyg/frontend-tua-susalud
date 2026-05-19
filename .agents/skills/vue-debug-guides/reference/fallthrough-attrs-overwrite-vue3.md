@@ -58,7 +58,7 @@ In Vue 3, fallthrough attributes overwrite explicitly set attributes on the root
 <!-- Child.vue - CORRECT: Control attribute precedence -->
 <script setup>
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 
@@ -80,7 +80,7 @@ defineOptions({
 import { computed, useAttrs } from 'vue'
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 
 const attrs = useAttrs()
@@ -105,12 +105,12 @@ const filteredAttrs = computed(() => {
 const props = defineProps({
   dataTestid: {
     type: String,
-    default: 'submit-btn'
-  }
+    default: 'submit-btn',
+  },
 })
 
 defineOptions({
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 </script>
 

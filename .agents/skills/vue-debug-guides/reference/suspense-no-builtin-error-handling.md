@@ -18,9 +18,7 @@ Without explicit error handling, async errors in suspended components will propa
 <template>
   <Suspense>
     <AsyncComponent />
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
@@ -29,7 +27,8 @@ Without explicit error handling, async errors in suspended components will propa
 
 ```vue
 <script setup>
-import { ref, onErrorCaptured } from 'vue'
+import { onErrorCaptured, ref } from 'vue'
+
 import AsyncComponent from './AsyncComponent.vue'
 
 const error = ref(null)
@@ -48,9 +47,7 @@ onErrorCaptured((err) => {
 
   <Suspense v-else>
     <AsyncComponent />
-    <template #fallback>
-      Loading...
-    </template>
+    <template #fallback> Loading... </template>
   </Suspense>
 </template>
 ```
@@ -60,13 +57,13 @@ onErrorCaptured((err) => {
 ```vue
 <!-- ErrorBoundary.vue -->
 <script setup>
-import { ref, onErrorCaptured } from 'vue'
+import { onErrorCaptured, ref } from 'vue'
 
 const props = defineProps({
   fallback: {
     type: String,
-    default: 'Something went wrong'
-  }
+    default: 'Something went wrong',
+  },
 })
 
 const emit = defineEmits(['error'])

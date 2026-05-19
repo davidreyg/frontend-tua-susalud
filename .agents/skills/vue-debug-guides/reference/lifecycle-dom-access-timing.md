@@ -21,6 +21,7 @@ The component's DOM is only available starting from the `mounted` hook (Options 
 - [ ] Use `$nextTick` if you need DOM after reactive data changes
 
 **Incorrect:**
+
 ```javascript
 // WRONG: Accessing DOM in created hook
 export default {
@@ -31,7 +32,7 @@ export default {
 
     // Third-party library initialization fails
     new Chart(document.getElementById('myChart')) // Element doesn't exist yet
-  }
+  },
 }
 ```
 
@@ -42,7 +43,7 @@ export default {
     // Still too early - template is compiled but not mounted
     console.log(this.$el) // undefined in Vue 3
     this.$refs.myInput.focus() // Error: Cannot read property 'focus' of undefined
-  }
+  },
 }
 ```
 
@@ -63,6 +64,7 @@ myInput.value.focus() // Error: Cannot read property 'focus' of null
 ```
 
 **Correct:**
+
 ```javascript
 // CORRECT: Use created for data, mounted for DOM
 export default {
@@ -79,16 +81,16 @@ export default {
 
     // Initialize DOM-dependent libraries
     this.chart = new Chart(this.$refs.chartCanvas, {
-      data: this.chartData
+      data: this.chartData,
     })
-  }
+  },
 }
 ```
 
 ```vue
 <!-- CORRECT: Access template refs in onMounted -->
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const myInput = ref(null)
 
@@ -115,8 +117,8 @@ export default {
 
       // Now the new element exists in DOM
       this.$refs.list.lastElementChild.scrollIntoView()
-    }
-  }
+    },
+  },
 }
 ```
 
@@ -124,7 +126,7 @@ export default {
 
 ```vue
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 const listRef = ref(null)
 const items = ref([])
@@ -140,7 +142,7 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { useTemplateRef, onMounted } from 'vue'
+import { onMounted, useTemplateRef } from 'vue'
 
 // Vue 3.5+ recommended approach - decouples ref name from variable name
 const input = useTemplateRef('my-input')
@@ -159,7 +161,7 @@ onMounted(() => {
 
 ```vue
 <script setup>
-import { ref, nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
 const listRef = ref(null)
 const items = ref([])
@@ -206,11 +208,12 @@ export default {
     this.map?.remove()
     this.editor?.dispose()
     this.player?.dispose()
-  }
+  },
 }
 ```
 
 ## Reference
+
 - [Vue.js Lifecycle Hooks](https://vuejs.org/guide/essentials/lifecycle.html)
 - [Vue.js Template Refs](https://vuejs.org/guide/essentials/template-refs.html)
 - [Vue.js nextTick](https://vuejs.org/api/general.html#nexttick)

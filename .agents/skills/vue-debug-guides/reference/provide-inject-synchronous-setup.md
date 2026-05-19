@@ -20,6 +20,7 @@ tags: [vue3, provide-inject, composition-api, async, setup]
 ## The Gotcha: Async Provide Fails Silently
 
 **Wrong - Provide after async operation:**
+
 ```vue
 <script setup>
 import { provide } from 'vue'
@@ -33,6 +34,7 @@ onMounted(async () => {
 ```
 
 **Wrong - Provide inside callback:**
+
 ```vue
 <script setup>
 import { provide } from 'vue'
@@ -45,6 +47,7 @@ setTimeout(() => {
 ```
 
 **Wrong - Provide after await in setup:**
+
 ```vue
 <script setup>
 import { provide } from 'vue'
@@ -60,9 +63,10 @@ provide('config', config) // May not work reliably
 ## Solution: Provide Synchronously, Update Async
 
 **Correct - Provide ref immediately, update later:**
+
 ```vue
 <script setup>
-import { provide, ref, onMounted } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 
 // Provide immediately with initial value
 const user = ref(null)
@@ -72,7 +76,7 @@ const error = ref(null)
 provide('userState', {
   user,
   isLoading,
-  error
+  error,
 })
 
 // Update the ref values asynchronously
@@ -111,21 +115,21 @@ Create a reusable pattern for async-provided data:
 ```vue
 <!-- AsyncDataProvider.vue -->
 <script setup>
-import { provide, ref, onMounted, watch } from 'vue'
+import { onMounted, provide, ref, watch } from 'vue'
 
 const props = defineProps({
   fetchFn: {
     type: Function,
-    required: true
+    required: true,
   },
   provideKey: {
     type: [String, Symbol],
-    required: true
+    required: true,
   },
   immediate: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 
 const data = ref(null)
@@ -150,7 +154,7 @@ provide(props.provideKey, {
   data,
   isLoading,
   error,
-  reload: load
+  reload: load,
 })
 
 // Fetch asynchronously
@@ -168,10 +172,7 @@ Usage:
 
 ```vue
 <template>
-  <AsyncDataProvider
-    :fetch-fn="() => api.getUser(userId)"
-    provide-key="userData"
-  >
+  <AsyncDataProvider :fetch-fn="() => api.getUser(userId)" provide-key="userData">
     <UserProfile />
   </AsyncDataProvider>
 </template>
@@ -197,8 +198,7 @@ function debugProvide(key, value) {
 
   if (!instance) {
     console.error(
-      `provide() called outside setup context. ` +
-      `Key: ${String(key)}. This will fail silently.`
+      `provide() called outside setup context. ` + `Key: ${String(key)}. This will fail silently.`
     )
     return
   }
@@ -214,6 +214,7 @@ function debugProvide(key, value) {
 ```js
 // main.js
 import { createApp } from 'vue'
+
 import App from './App.vue'
 
 const app = createApp(App)
@@ -222,7 +223,7 @@ const app = createApp(App)
 app.provide('appConfig', { version: '1.0.0' })
 
 // Even async is OK at app level before mount
-fetchConfig().then(config => {
+fetchConfig().then((config) => {
   app.provide('apiConfig', config)
   app.mount('#app')
 })
@@ -231,5 +232,6 @@ fetchConfig().then(config => {
 But once the app is mounted, `app.provide()` should not be called.
 
 ## Reference
+
 - [Vue.js Composition API - provide()](https://vuejs.org/api/composition-api-dependency-injection.html#provide)
 - [Vue.js Provide/Inject Guide](https://vuejs.org/guide/components/provide-inject.html)
