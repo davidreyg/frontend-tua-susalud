@@ -13,12 +13,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   generate: [file: File, sheet: string]
-  reset: []
 }>()
 
 const maxSize = 10 * 1024 * 1024
 
-const { files, errors, openFileDialog, removeFile, clearFiles, inputRef, dropzoneRef } =
+const { files, errors, openFileDialog, removeFile, inputRef, dropzoneRef } =
   useFileUpload({
     maxSize,
     accept: '.xlsx',
@@ -27,7 +26,7 @@ const { files, errors, openFileDialog, removeFile, clearFiles, inputRef, dropzon
 
 const currentFile = computed(() => files.value[0])
 
-const { values, defineField, handleSubmit, resetForm, setFieldError } = useForm({
+const { defineField, handleSubmit, setFieldError } = useForm({
   validationSchema: toTypedSchema(
     yup.object({
       sheet: yup
@@ -55,12 +54,6 @@ watch(
     if (err) setFieldError('sheet', err)
   }
 )
-
-function resetAll() {
-  resetForm()
-  clearFiles()
-  emit('reset')
-}
 
 const sequenceContainer: MotionProps['variants'] = {
   hidden: { opacity: 0 },

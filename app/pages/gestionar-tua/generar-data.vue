@@ -15,6 +15,13 @@ const errorMsg = ref<string>()
 
 const tuaLoaded = computed(() => !!response.value)
 
+watch(currentStep, (val, oldVal) => {
+  if (val === 1 && oldVal === 2) {
+    response.value = null
+    errorMsg.value = undefined
+  }
+})
+
 async function handleGenerate(file: File, sheet: string) {
   loading.value = true
   errorMsg.value = undefined
@@ -30,9 +37,9 @@ async function handleGenerate(file: File, sheet: string) {
 }
 
 function handleReset() {
-  currentStep.value = 1
   response.value = null
   errorMsg.value = undefined
+  currentStep.value = 1
 }
 </script>
 
@@ -45,15 +52,12 @@ function handleReset() {
     />
 
     <!-- Stepper header -->
-    <UiStepper
-      v-model="currentStep"
-      orientation="horizontal"
-      class="w-full"
-    >
+    <UiStepper v-model="currentStep" orientation="horizontal" class="w-full">
       <div class="flex w-full">
         <template v-for="{ step, title, description } in steps" :key="step">
           <UiStepperItem
             :step="step"
+            :disabled="step === 2 && !tuaLoaded"
             class="relative flex-1 flex-col!"
           >
             <UiStepperTrigger class="flex-col gap-3 rounded pb-3">
@@ -89,7 +93,6 @@ function handleReset() {
             :loading="loading"
             :error="errorMsg"
             @generate="handleGenerate"
-            @reset="handleReset"
           />
         </Motion>
 
@@ -103,7 +106,7 @@ function handleReset() {
         >
           <StepsGenerarDataStepResults :data="response" @reset="handleReset" />
           <div class="mt-8 flex justify-center">
-            <UiButton variant="outline" @click="currentStep = 1">
+            <UiButton variant="outline" @click="handleReset">
               <Icon name="lucide:arrow-left" class="size-4" />
               Anterior
             </UiButton>
