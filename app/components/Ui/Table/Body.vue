@@ -12,7 +12,10 @@ const styles = tv({
 </script>
 
 <template>
-  <tbody data-slot="table-body" :class="styles({ class: normalizeClass(props.class) || undefined })">
+  <tbody
+    data-slot="table-body"
+    :class="styles({ class: normalizeClass(props.class) || undefined })"
+  >
     <slot />
   </tbody>
 </template>

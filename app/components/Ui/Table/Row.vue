@@ -7,7 +7,7 @@ const props = defineProps<{
 }>()
 
 const styles = tv({
-  base: 'border-border/50 border-b transition-colors data-[state=selected]:bg-muted/50',
+  base: 'border-border/50 data-[state=selected]:bg-muted/50 border-b transition-colors',
 })
 </script>
 
