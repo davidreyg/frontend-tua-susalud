@@ -5,7 +5,7 @@ import { tuaService } from '~/services/tua.service'
 
 const maxSize = 10 * 1024 * 1024
 
-const { files, errors, openFileDialog, removeFile, inputRef, dropzoneRef } = useFileUpload({
+const { files, errors, openFileDialog, clearFiles, inputRef, dropzoneRef } = useFileUpload({
   maxSize,
   accept: '.xlsx,.xls',
   multiple: false,
@@ -18,11 +18,9 @@ const resultUrl = ref<string>()
 const downloadName = ref('')
 const errorMsg = ref<string>()
 
-// Libera la URL anterior antes de asignar una nueva
-function setResultUrl(archivo: Blob, nombre: string) {
+function revokeResultUrl() {
   if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
-  resultUrl.value = URL.createObjectURL(archivo)
-  downloadName.value = nombre
+  resultUrl.value = undefined
 }
 
 async function uploadFile() {
@@ -33,8 +31,12 @@ async function uploadFile() {
 
   try {
     const archivo = await tuaService.cleanRolesTurno(currentFile.value.file)
-    const nombre = currentFile.value.file.name.replace(/\.(xlsx|xls)$/i, '_limpio.$1')
-    setResultUrl(archivo, nombre)
+
+    revokeResultUrl()
+    const fecha = new Date().toISOString().slice(0, 10)
+    const nombre = currentFile.value.file.name.replace(/\.(xlsx|xls)$/i, `_limpio_${fecha}.$1`)
+    downloadName.value = nombre
+    resultUrl.value = URL.createObjectURL(archivo)
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : 'Error al procesar el archivo'
   } finally {
@@ -42,10 +44,22 @@ async function uploadFile() {
   }
 }
 
-// Revoca al desmontar
-onUnmounted(() => {
-  if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
+watch(currentFile, (file, prev) => {
+  if (file && file !== prev) {
+    revokeResultUrl()
+    errorMsg.value = undefined
+    uploadFile()
+  }
 })
+
+function resetAll() {
+  revokeResultUrl()
+  downloadName.value = ''
+  errorMsg.value = undefined
+  clearFiles()
+}
+
+onUnmounted(revokeResultUrl)
 
 const fadeIn: MotionProps['variants'] = {
   hidden: { opacity: 0 },
@@ -64,7 +78,7 @@ const slideUp: MotionProps['variants'] = {
     <AppPageHeader
       section="Gestionar TUA"
       title="Limpiar Roles de turno"
-      description="Sube un archivo Excel con los roles de turno para procesarlo y obtener una versión limpia."
+      description="Sube un archivo Excel con los roles de turno y se procesará automáticamente."
     />
 
     <!-- Upload section -->
@@ -89,12 +103,7 @@ const slideUp: MotionProps['variants'] = {
             class="border-input hover:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 flex min-h-44 flex-col items-center justify-center rounded-lg border border-dashed p-6 transition-colors has-disabled:pointer-events-none has-disabled:opacity-50 has-[input:focus]:ring-[3px]"
             @click="openFileDialog"
           >
-            <input
-              ref="inputRef"
-              hidden
-              aria-label="Upload file"
-              :disabled="Boolean(currentFile)"
-            />
+            <input ref="inputRef" hidden aria-label="Upload file" />
 
             <div class="flex flex-col items-center gap-3 text-center">
               <div
@@ -102,16 +111,35 @@ const slideUp: MotionProps['variants'] = {
                 aria-hidden="true"
               >
                 <Icon
-                  :name="currentFile ? 'lucide:file-spreadsheet' : 'lucide:upload'"
-                  class="text-muted-foreground size-5"
+                  v-if="loading"
+                  name="lucide:loader-circle"
+                  class="text-muted-foreground size-5 animate-spin"
                 />
+                <Icon
+                  v-else-if="resultUrl"
+                  name="lucide:check-circle-2"
+                  class="size-5 text-emerald-500"
+                />
+                <Icon v-else name="lucide:upload" class="text-muted-foreground size-5" />
               </div>
               <div>
                 <p class="text-sm font-medium">
-                  {{ currentFile ? currentFile.file.name : 'Arrastra o haz clic para seleccionar' }}
+                  {{
+                    loading
+                      ? 'Procesando…'
+                      : currentFile
+                        ? currentFile.file.name
+                        : 'Arrastra o haz clic para seleccionar'
+                  }}
                 </p>
                 <p v-if="!currentFile" class="text-muted-foreground mt-0.5 text-xs">
                   Tamaño máximo: {{ formatBytes(maxSize) }}
+                </p>
+                <p v-else-if="resultUrl" class="mt-0.5 text-xs text-emerald-600">
+                  Listo para descargar
+                </p>
+                <p v-else-if="errorMsg" class="text-destructive mt-0.5 text-xs">
+                  {{ errorMsg }}
                 </p>
               </div>
             </div>
@@ -132,55 +160,6 @@ const slideUp: MotionProps['variants'] = {
         </Motion>
       </div>
     </div>
-
-    <!-- File section -->
-    <AnimatePresence>
-      <Motion
-        v-if="currentFile"
-        key="file-section"
-        :variants="slideUp"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-      >
-        <UiDivider label="Archivo cargado" class="my-8" />
-
-        <div class="bg-card rounded-xl border">
-          <div class="flex items-center justify-between gap-3 px-6 py-4">
-            <div class="flex items-center gap-3 overflow-hidden">
-              <div
-                class="bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
-              >
-                <Icon name="lucide:file-spreadsheet" class="text-primary size-5" />
-              </div>
-              <div class="min-w-0">
-                <p class="truncate text-sm font-medium">{{ currentFile.file.name }}</p>
-                <p class="text-muted-foreground text-xs">
-                  {{ formatBytes((currentFile.file as File).size || currentFile.file.size) }}
-                </p>
-              </div>
-            </div>
-
-            <UiButton
-              size="icon"
-              variant="ghost"
-              class="text-muted-foreground/80 hover:text-foreground size-8 shrink-0"
-              aria-label="Remove file"
-              @click="removeFile(currentFile.id)"
-            >
-              <Icon name="lucide:x" class="size-4" />
-            </UiButton>
-          </div>
-          <UiDivider class="px-6" />
-          <div class="px-6 py-4">
-            <UiButton :loading="loading" @click="uploadFile">
-              <Icon name="lucide:wand-sparkles" class="size-4" />
-              Limpiar archivo
-            </UiButton>
-          </div>
-        </div>
-      </Motion>
-    </AnimatePresence>
 
     <!-- Result section -->
     <AnimatePresence>
@@ -218,35 +197,10 @@ const slideUp: MotionProps['variants'] = {
               <Icon name="lucide:download" class="size-4" />
               Descargar
             </UiButton>
+            <UiButton variant="outline" size="icon-sm" @click="resetAll">
+              <Icon name="lucide:refresh-cw" class="size-4" />
+            </UiButton>
           </div>
-        </div>
-      </Motion>
-    </AnimatePresence>
-
-    <!-- Error section -->
-    <AnimatePresence>
-      <Motion
-        v-if="errorMsg"
-        key="error-section"
-        :variants="slideUp"
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-      >
-        <UiDivider class="my-8" />
-
-        <div
-          class="border-destructive/20 bg-destructive/5 flex items-center gap-3 rounded-xl border px-6 py-4 text-sm"
-        >
-          <div
-            class="bg-destructive/10 flex size-10 shrink-0 items-center justify-center rounded-lg"
-          >
-            <Icon name="lucide:alert-circle" class="text-destructive size-5" />
-          </div>
-          <p class="text-destructive flex-1">{{ errorMsg }}</p>
-          <UiButton variant="ghost" size="icon-sm" @click="errorMsg = undefined">
-            <Icon name="lucide:x" class="size-4" />
-          </UiButton>
         </div>
       </Motion>
     </AnimatePresence>
