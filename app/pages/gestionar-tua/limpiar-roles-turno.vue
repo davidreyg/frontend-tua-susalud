@@ -155,7 +155,7 @@ const listItem: MotionProps['variants'] = {
                     <Icon
                       v-if="loading"
                       name="lucide:loader-circle"
-                      class="size-4 opacity-60 animate-spin"
+                      class="size-4 animate-spin opacity-60"
                     />
                     <Icon v-else name="lucide:upload" class="size-4 opacity-60" />
                   </Motion>

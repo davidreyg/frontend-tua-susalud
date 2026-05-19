@@ -53,7 +53,7 @@ watch(isDesktop, (desktop) => {
   <!-- Mobile toggle -->
   <button
     aria-label="Abrir menú de navegación"
-    class="fixed top-4 left-4 z-50 flex size-9 items-center justify-center rounded-lg border bg-background shadow-xs lg:hidden"
+    class="bg-background fixed top-4 left-4 z-50 flex size-9 items-center justify-center rounded-lg border shadow-xs lg:hidden"
     @click="isMobileOpen = !isMobileOpen"
   >
     <Icon :name="isMobileOpen ? 'lucide:x' : 'lucide:menu'" class="size-4" />
@@ -61,16 +61,12 @@ watch(isDesktop, (desktop) => {
 
   <!-- Sidebar content -->
   <aside
-    class="border-sidebar-border bg-sidebar flex h-screen w-[300px] shrink-0 flex-col border-r transition-[margin] duration-300 max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:z-40 max-lg:border-r-0"
+    class="border-sidebar-border bg-sidebar flex h-screen w-75 shrink-0 flex-col border-r transition-[margin] duration-300 max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:z-40 max-lg:border-r-0"
     :class="isDesktop || isMobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'"
   >
     <UiScrollArea class="size-full">
       <div class="flex h-screen flex-col pt-7">
-        <NuxtLink
-          to="/"
-          class="flex w-full items-center gap-3 px-5"
-          @click="closeMobile"
-        >
+        <NuxtLink to="/" class="flex w-full items-center gap-3 px-5" @click="closeMobile">
           <UiAvatar src="/icon.png" alt="Company Logo" class="size-7 rounded object-contain" />
           <span class="text-xl font-bold">{{ COMPANY_NAME }}</span>
         </NuxtLink>
@@ -207,8 +203,8 @@ watch(isDesktop, (desktop) => {
             <div class="flex items-center gap-3">
               <UiAvatar :src="user.avatar" class="size-10" />
               <div>
-                <p class="text-sm font-semibold" v-html="user.username" />
-                <p class="text-muted-foreground text-sm" v-html="user.email" />
+                <p class="text-sm font-semibold" v-text="user.username" />
+                <p class="text-muted-foreground text-sm" v-text="user.email" />
               </div>
             </div>
             <UiTooltip>
