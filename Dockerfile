@@ -1,8 +1,8 @@
 # Etapa 1: Construcción con Bun
 FROM oven/bun:1-alpine AS builder
+ENV NODE_ENV=production
 
 WORKDIR /app
-
 # Copiar dependencias
 COPY package.json bun.lockb* ./
 
