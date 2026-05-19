@@ -1,6 +1,11 @@
 <script lang="ts" setup>
+import { AnimatePresence, Motion } from 'motion-v'
+
 const route = useRoute()
 const search = ref('')
+const isMobileOpen = ref(false)
+
+const isDesktop = useMediaQuery('(min-width: 1024px)')
 
 const user = {
   avatar: 'https://randomuser.me/api/portraits/med/men/2.jpg',
@@ -34,13 +39,38 @@ const topNav: NavItem[] = [
 const bottomNav: NavItem[] = []
 
 const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
+
+function closeMobile() {
+  isMobileOpen.value = false
+}
+
+watch(isDesktop, (desktop) => {
+  if (desktop) isMobileOpen.value = false
+})
 </script>
 
 <template>
-  <aside class="h-screen w-[300px] border-r">
+  <!-- Mobile toggle -->
+  <button
+    aria-label="Abrir menú de navegación"
+    class="fixed top-4 left-4 z-50 flex size-9 items-center justify-center rounded-lg border bg-background shadow-xs lg:hidden"
+    @click="isMobileOpen = !isMobileOpen"
+  >
+    <Icon :name="isMobileOpen ? 'lucide:x' : 'lucide:menu'" class="size-4" />
+  </button>
+
+  <!-- Sidebar content -->
+  <aside
+    class="border-sidebar-border bg-sidebar flex h-screen w-[300px] shrink-0 flex-col border-r transition-[margin] duration-300 max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:z-40 max-lg:border-r-0"
+    :class="isDesktop || isMobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'"
+  >
     <UiScrollArea class="size-full">
       <div class="flex h-screen flex-col pt-7">
-        <NuxtLink to="/" class="flex w-full items-center gap-3 px-5">
+        <NuxtLink
+          to="/"
+          class="flex w-full items-center gap-3 px-5"
+          @click="closeMobile"
+        >
           <UiAvatar src="/icon.png" alt="Company Logo" class="size-7 rounded object-contain" />
           <span class="text-xl font-bold">{{ COMPANY_NAME }}</span>
         </NuxtLink>
@@ -51,7 +81,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
 
         <div class="flex h-full grow flex-col px-5 pb-8">
           <div class="mb-10 flex flex-col gap-10">
-            <nav class="flex flex-col gap-1">
+            <nav class="flex flex-col gap-1" aria-label="Navegación principal">
               <template v-for="(n, i) in topNav" :key="i">
                 <UiButton
                   v-if="!n.items"
@@ -59,6 +89,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
                   size="default"
                   variant="ghost"
                   class="nav-btn justify-start gap-4 px-3"
+                  @click="closeMobile"
                 >
                   <Icon v-if="n.icon" :name="n.icon" class="text-muted-foreground size-4" />
                   <span>{{ n.title }}</span>
@@ -85,6 +116,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
                         size="sm"
                         variant="ghost"
                         class="sub-btn justify-start gap-4 px-3"
+                        @click="closeMobile"
                       >
                         <Icon
                           v-if="item.icon"
@@ -98,7 +130,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
                 </UiCollapsible>
               </template>
             </nav>
-            <nav class="mt-auto flex flex-col gap-1">
+            <nav class="mt-auto flex flex-col gap-1" aria-label="Navegación secundaria">
               <template v-for="(n, i) in bottomNav" :key="i">
                 <UiButton
                   v-if="!n.items"
@@ -106,6 +138,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
                   size="default"
                   variant="ghost"
                   class="nav-btn justify-start gap-4 px-3"
+                  @click="closeMobile"
                 >
                   <Icon v-if="n.icon" :name="n.icon" class="text-muted-foreground size-4" />
                   <span>{{ n.title }}</span>
@@ -132,6 +165,7 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
                         size="sm"
                         variant="ghost"
                         class="sub-btn justify-start gap-4 px-3"
+                        @click="closeMobile"
                       >
                         <Icon
                           v-if="item.icon"
@@ -190,6 +224,22 @@ const isTuaOpen = computed(() => route.path.startsWith('/gestionar-tua'))
       </div>
     </UiScrollArea>
   </aside>
+
+  <!-- Backdrop overlay for mobile -->
+  <AnimatePresence>
+    <Motion
+      v-if="!isDesktop && isMobileOpen"
+      key="sidebar-backdrop"
+      :initial="{ opacity: 0 }"
+      :animate="{ opacity: 1 }"
+      :exit="{ opacity: 0 }"
+      :transition="{ duration: 0.2 }"
+      class="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+      aria-hidden="true"
+      @click="closeMobile"
+      @keydown.escape="closeMobile"
+    />
+  </AnimatePresence>
 </template>
 
 <style scoped>
