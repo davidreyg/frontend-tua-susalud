@@ -6,9 +6,3 @@ services:
     restart: unless-stopped
     expose:
       - 80
-    networks:
-      - proxy
-
-networks:
-  proxy:
-    external: true
