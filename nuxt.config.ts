@@ -40,6 +40,12 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-07-15',
 
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: 'http://localhost:9000',
+    },
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },

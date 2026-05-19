@@ -45,5 +45,6 @@
   },
   "eslint.validate": ["javascript", "typescript", "vue"],
   "vue.format.template.enabled": false,
-  "prettier.enable": true
+  "prettier.enable": true,
+  "cSpell.words": ["Nuxt"]
 }
